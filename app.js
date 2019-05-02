@@ -10,7 +10,7 @@ const isAuth = require('./middleware/is-auth');
 
 mongoose.connect('mongodb://localhost:27017/graphqlAPI', {useNewUrlParser: true})
 .then(() => {
-  app.listen(3000);
+  app.listen(8000);
 })
 .catch(err => {
   console.log(err);
