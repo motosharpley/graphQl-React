@@ -3,10 +3,21 @@ import React, { Component } from 'react';
 import './Auth.css';
 
 class AuthPage extends Component {
+  state = {
+    isLogin: true
+  }
+
+
   constructor(props) {
     super(props);
     this.emailElement = React.createRef();
     this.passwordElement = React.createRef();
+  }
+
+  switchModeHandler = () => {
+    this.setState(prevState => {
+      return {isLogin: !prevState.isLogin};
+    })
   }
   
   submitHandler = (event) => {
@@ -18,16 +29,31 @@ class AuthPage extends Component {
       return;
     }
     
-    const requestBody = {
+    let requestBody = {
       query: `
-        mutation {
-          createUser(userInput: {email: "${email}", password: "${password}"}) {
-            _id
-            email
+        query {
+          login(email: "${email}", password: "${password}") {
+            userId
+            token
+            tokenExpiration
           }
         }
       `
-    };
+    }
+
+    if (!this.state.isLogin) {
+      requestBody = {
+        query: `
+          mutation {
+            createUser(userInput: {email: "${email}", password: "${password}"}) {
+              _id
+              email
+            }
+          }
+        `
+      };
+    }
+
 
     fetch('http://localhost:8000/graphql', {
       method: 'POST',
@@ -63,8 +89,8 @@ class AuthPage extends Component {
           <input type="password" id="password" ref={this.passwordElement} />
         </div>
         <div className="form-actions">
-          <button type="submit">Sign Up</button>
-          <button type="button">Go To Sign In</button>
+          <button type="submit">{this.state.isLogin ? 'Sign In' : 'Sign Up'}</button>
+          <button type="button" onClick={this.switchModeHandler} >Switch To {this.state.isLogin ? 'Sign up' : 'Sign In'}</button>
         </div>
       </form>
     );
